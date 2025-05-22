@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart'; // Import the new screen
 import '../screen/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -147,7 +148,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ForgotPasswordScreen(),
+                              ),
+                            );
+                          },
                           child: Text(
                             'Quên mật khẩu?',
                             style: TextStyle(
