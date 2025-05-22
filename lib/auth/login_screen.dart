@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'register_screen.dart';
 import '../screen/home_screen.dart';
 
@@ -164,19 +165,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              // Simulating successful login - normally you would
-                              // authenticate with a backend service here
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeScreen(
-                                    email: _emailController.text,
-                                    creationDate: DateTime.now(),
+                              try {
+                                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
+                                // Navigate to home screen on successful login
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HomeScreen(),
                                   ),
-                                ),
-                              );
+                                );
+                              } on FirebaseAuthException catch (e) {
+                                String message;
+                                if (e.code == 'user-not-found') {
+                                  message = 'Không tìm thấy người dùng cho email đó.';
+                                } else if (e.code == 'wrong-password') {
+                                  message = 'Sai mật khẩu được cung cấp cho người dùng đó.';
+                                } else {
+                                  message = 'Đăng nhập thất bại: ${e.message}';
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(message)),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -235,4 +250,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-} 
+}

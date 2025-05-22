@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 import '../screen/home_screen.dart';
 
@@ -233,19 +234,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              // Simulating successful registration - normally you would
-                              // register with a backend service here
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HomeScreen(
-                                    email: _emailController.text,
-                                    creationDate: DateTime.now(),
+                              try {
+                                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
+                                // Navigate to home screen on successful registration
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HomeScreen(),
                                   ),
-                                ),
-                              );
+                                );
+                              } on FirebaseAuthException catch (e) {
+                                String message;
+                                if (e.code == 'weak-password') {
+                                  message = 'Mật khẩu được cung cấp quá yếu.';
+                                } else if (e.code == 'email-already-in-use') {
+                                  message = 'Tài khoản đã tồn tại cho email đó.';
+                                } else {
+                                  message = 'Đăng ký thất bại: ${e.message}';
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(message)),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -304,4 +319,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-} 
+}
