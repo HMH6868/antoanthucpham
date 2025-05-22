@@ -17,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Hide the back button
         title: const Text(
           'An Toàn Thực Phẩm',
           style: TextStyle(
